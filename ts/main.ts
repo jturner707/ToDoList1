@@ -1,150 +1,150 @@
+//  Starter code author is Joe Ortiz
+//  Modifications by Jeffrey Turner
+//  
 /**
- * Represents an individual book that can be purchased.
+ * Represents a individual task
  */
-class Book {
+class Task {
     /**
-     * The 13 digit ISBN number
+     * The short title of the task. A future feature may be to just display the titles
      */
-    isbn : string;
     title : string;
-    
-    /**
-     * Regular (non-sale) retail price of the book
-     */
-    price : number;
 
     /**
-     * Release date may be a future date.
+     * The longer description of the task
      */
-    releaseDate : Date;
-}
+    description : string;
 
-/**
- * Book object test code
- */
+    /**
+     * Mark whether the task is completed or not.
+     */
+    completed : boolean;
 
-let myBook = new Book();
-myBook.isbn = "1234567890";
-myBook.price = 9.99;
-myBook.title = "Programming for Beginners";
-myBook.releaseDate = new Date(2023, 9, 8);  // Months are zero - indexed.
-
-console.log(myBook);
 
 window.onload = function() {
-    // Set up button click for add book form
-    let addBookBtn = document.querySelector("#add-book") as HTMLButtonElement;  //#finds the tag, "as" casts the element
-    addBookBtn.onclick = processBook;    
+    // Set up button click for add task form
+    let addTaskBtn = document.querySelector("#add-task") as HTMLButtonElement;
+    addTaskBtn.onclick = processTask;
 }
 
-function processBook(){
-    console.log("processBook was called");
-
-    // Validation
-    let userBook = getBook();
-    if (userBook != null) {
-        addBook(userBook);
+function processTask() {
+    let userTask = getTask();
+    if (userTask != null) {
+        addTaskToWebpage(userTask);
+        addTaskToStorage(userTask);
     }
 }
 
 /**
- * getBook will retrieve the book data from HTML
- * If all data is valid a Book object will be
- * returned.  If any data is invalid, null will 
- * be returned and error messages will be shown
- * on the webpage.
+ * This function will retrieve all the task
+ * data from the HTML page. If all data is valid
+ * a Task object will be returned. If any data
+ * is invalid, null will be returned and error messages
+ * will be shown on the web page.
  */
-function getBook():Book {  // Return book or null.
+function getTask():Task {
     clearAllErrorMessages();
 
     // Get all inputs
-    let isbnTextBox = document.querySelector("#isbn") as HTMLInputElement;
     let titleTextBox = document.querySelector("#title") as HTMLInputElement;
-    let priceTextBox = document.querySelector("#price") as HTMLInputElement;
-    let releaseDateTextBox = document.querySelector("#release-date") as HTMLInputElement;
+    let descriptionTextBox = document.querySelector("#description") as HTMLInputElement;
+    let completedradio = document.querySelector("#completed") as HTMLInputElement;
 
-    // Extract the data
     // Validate data
     let isValidData:boolean = true;
 
-    //Validate ISBN
-    let isbn:string = isbnTextBox.value;    // value is always a string coming from a textbox
-                                            // so declaring it with isbn:string is not required.
-    if (!isValidIsbn(isbn)) {
-        isValidData = false;
-        isbnTextBox.nextElementSibling.textContent = "ISBN must be 13 digits only";
-    }
-    
-    // This validates an ISBN 13 number.  Data is the isbn to be tested.
-    function isValidIsbn(data:string) {
-        const isbnRegex = /^\d{13}$/;   // Simplified regex only checks for 13 numbers.                             
-        return isbnRegex.test(data);
-    }
-
-
-    // Validate title
+    // Validate the title
     let title:string = titleTextBox.value;
-    if (title.trim() == '') {
+    if (!isValidTitle(title)) {
         isValidData = false;
-        let titleErrorSpan = titleTextBox.nextElementSibling;
-        titleErrorSpan.textContent = "You must provide a title."
+        titleTextBox.nextElementSibling.textContent = "Title can only be 25 characters.";
     }
 
-    // Validate price
-    let price = parseFloat(priceTextBox.value);
-    if (isNaN(price) || price < 0) {
+    // Validate description
+    let description:string = descriptionTextBox.value;
+    if (description.trim() == "") {
         isValidData = false;
-        priceTextBox.nextElementSibling.textContent = "Price must be a positive number."
+        let descriptionErrorSpan = descriptionTextBox.nextElementSibling;
+        descriptionErrorSpan.textContent = "Description can only be 256 characters.";
     }
-
-    // Validate release date
-    let releaseDate = releaseDateTextBox.value;
-    // Attempt to parse the date string
-    const timestamp = Date.parse(releaseDate);
     
-    // If timestamp is NaN, the date is invalid
-    if (isNaN(timestamp)) {
-        isValidData = false;
-        releaseDateTextBox.nextElementSibling.textContent = "Release date must be a valid date."
-    
-    }
-
+    // no validation for radio button check
     if (isValidData) {
-        // Create and populate Book object if all data is valid.
-        let addedBook = new Book();
-        addedBook.isbn = isbn;
-        addedBook.price = price;
-        addedBook.title = title;
-        addedBook.releaseDate = new Date(releaseDate);
+        // Create and populate Book object if all data is valid
+        let addedTask = new Task();
+        addedTask.title = title;
+        addedTask.description = description;
+        addedTask.completed = completed;
 
-        return addedBook;
+        return addedTask;
     }
+    return null; // Return null if any invalid data is present
+}
 
-    else {
-        return null;  // return null if any invalid data
+/**
+ * This validates a title is 25 character or fewer but not null
+ * Create regex object.  Use the test method of regex.
+ */
+function isValidTitle(data) {
+    let regex = /^.{1,25}$/;
+    return regex.test(data);
+}
+
+
+/**
+ * Adds a Book object to the web page. Assumes
+ * all data is valid
+ * @param b The Book containing valid data to be added
+ */
+function addTaskToWebpage(t:Task):void {
+    console.log(t);
+
+    // Add the task to the web page
+    let taskDiv:HTMLDivElement = document.createElement("div");
+
+    let titleHeading = document.createElement("h2");
+    titleHeading.textContent = `${t.title} : ${t.description}`;
+    // Add h2 to task div <div><h2>Title : description</h2></div>
+    taskDiv.appendChild(titleHeading);
+    
+
+
+    // Add bookDiv to web page
+    document.querySelector("#task-display").appendChild(taskDiv);
+}
+
+/**
+ * Adds a single Book object to existing Book list in storage.
+ * If no books are currently stored a new list will be created and stored
+ * @param b The Book that will be added to localStorage
+ */
+function addTaskToStorage(t:Task):void {
+    const TaskStorageKey = "Tasks";
+    // Read existing tasks out of storage
+    let taskData = localStorage.getItem(TaskStorageKey);
+
+    // Initialize with existing taskData is not null, or empty array if null
+    // This is a JS ternary/conditional operator
+    let tasks:Task[] = taskData ? JSON.parse(taskData) : [];
+    
+    tasks.push(t);
+
+    // Add to localStorage
+    taskData = JSON.stringify(tasks);
+    localStorage.setItem(TaskStorageKey, taskData);
+}
+
+/**
+ * Clears all the validation error message spans
+ * in the form
+ */
+function clearAllErrorMessages() {
+    // Get all error spans
+    let allSpans = document.querySelectorAll("form span.error-msg");
+
+    // Loop through, and set each span to an empty string
+    for(let i = 0; i < allSpans.length; i++) {
+        let currentSpan = allSpans[i];
+        currentSpan.textContent = "";
     }
 }
-    /**
-     * Adds a Book object to web storage.  Assumes all
-     * data is valid.  Inside parenthesis is parameter
-     * and variable name.  :void is return type.
-     * @param b 
-     */
-    function addBook(b:Book):void {
-        alert("Data was valid, book added");
-        console.log(b);
-    }
-
-    function clearAllErrorMessages() {
-        // Get all error spans.
-        let allSpans =
-        document.querySelectorAll("form span.error-msg")
-
-        // Loop through and set each span to an empty string.
-        // Lambda function inside allSpans.forEach() 
-        allSpans.forEach(someSpan => someSpan.textContent = "");
-        // for(let i = 0; i< allSpans.length; i++) {
-        //      let currentSpan = allSpans[i];
-        //      currentSpan.textContent = '';
-        // }
-    }

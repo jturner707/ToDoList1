@@ -17,29 +17,26 @@
     </style>
 </head>
 <body>
-    <h2>Add a Book</h2>   
-    <form>
-        <label for="isbn">ISBN</label>
-        <input id="isbn" type="text">
-        <span class="error-msg"></span>
-        <br>
+    <h1>ToDo List</h1>
 
+    <h2>Add a Task</h2>   
+    <form>
         <label for="title">Title</label>
         <input id="title" type="text">
         <span class="error-msg"></span>
         <br>
 
-        <label for="price">Price</label>
-        <input id="price" type="number" step = .01> 
+        <label for="details">Details</label>
+        <input id="details" type="text">
         <span class="error-msg"></span>
         <br>
 
-        <label for="release-date">Release Date</label>
-        <input id="release-date" type="date">
+        <label for="completed">Completed</label>
+        <input id="completed" type="radio"> 
         <span class="error-msg"></span>
         <br>
 
-        <button type="button" id="add-book">Submit Book</button>
+        <button type="button" id="add-task">Add Task</button>
     </form>
 
 
