@@ -5,9 +5,6 @@
 /**
  * Represents an individual task
  */
-/**
- * Represents an individual task
- */
 class Task {
     constructor(title, description, completed) {
         this.title = title;
@@ -15,6 +12,10 @@ class Task {
         this.completed = completed;
     }
 }
+/**
+ * When the HTML page loads, this function sets up the listeners for the buttons
+ * and call the function to load the tasks from localStorage.
+ */
 window.onload = function () {
     // Set up button click for add and clear task form
     let addTaskBtn = document.querySelector("#add-task");
@@ -23,29 +24,7 @@ window.onload = function () {
     clearTasksBtn.onclick = clearAllTasks;
     // Load existing tasks from localStorage
     loadTasks();
-    /*
-    // Check if storage exists, if not, add a dummy task
-    const TaskStorageKey = "Tasks";
-    let taskData = localStorage.getItem(TaskStorageKey);
-    if (!taskData) {
-        addDummyTask();
-    }
-        */
 };
-/*
-/**
- * Adds a dummy task to storage.
- *
-function addDummyTask(): void {
-    // Create a dummy Task object
-    let dummyTask = new Task("Title", "Description", false);
-
-    // Add the dummy Task to storage
-    addTaskToStorage(dummyTask);
-
-    console.log("Dummy task added to storage:", dummyTask);
-}
-*/
 /**
  * Load tasks from localStorage and display them on the webpage.
  */
@@ -54,16 +33,23 @@ function loadTasks() {
     let taskData = localStorage.getItem(TaskStorageKey);
     if (taskData) {
         let tasks = JSON.parse(taskData);
-        for (let task of tasks) {
-            addTaskToWebpage(task);
-        }
+        refreshTaskDisplay(tasks);
     }
 }
+/**
+ * When the Add Task button is clicked, this calls the functions
+ * to get that data and add it to the array.  The input text boxes
+ * are cleared and the task list is updated.
+ */
 function processTask() {
     let userTask = getTask();
     if (userTask != null) {
-        addTaskToWebpage(userTask);
         addTaskToStorage(userTask);
+        let taskData = localStorage.getItem("Tasks");
+        if (taskData) {
+            let tasks = JSON.parse(taskData);
+            refreshTaskDisplay(tasks); // Refresh the display to show the new task
+        }
         clearInputFields(); // Clear the input fields after task is added
     }
 }
@@ -79,7 +65,6 @@ function getTask() {
     // Get all inputs
     let titleTextBox = document.querySelector("#title");
     let descriptionTextBox = document.querySelector("#description");
-    let completedRadio = document.querySelector('input[name="completed"]:checked');
     // Validate data
     let isValidData = true;
     // Validate the title
@@ -91,7 +76,7 @@ function getTask() {
             titleErrorSpan.textContent = "Title can only be 25 characters.";
         }
     }
-    // Validate description
+    // Validate description if shorter than 257 characters.  May be blank "".
     let description = descriptionTextBox.value;
     if (description.length > 256) {
         isValidData = false;
@@ -102,7 +87,7 @@ function getTask() {
     }
     if (isValidData) {
         // Create and populate Task object if all data is valid
-        let addedTask = new Task(title, description, completedRadio ? completedRadio.value === "true" : false);
+        let addedTask = new Task(title, description, false); // Default to not completed
         return addedTask;
     }
     return null; // Return null if any invalid data is present
@@ -119,20 +104,46 @@ function isValidTitle(data) {
  * all data is valid
  * @param t The Task containing valid data to be added
  */
-function addTaskToWebpage(t) {
+function addTaskToWebpage(t, taskIndex) {
     console.log(t);
     // Create a div for the task
     let taskDiv = document.createElement("div");
     // Create and set up the title and description heading
     let titleHeading = document.createElement("h2");
-    titleHeading.textContent = `${t.title} : ${t.description}`;
+    titleHeading.textContent = t.title;
+    // Create and set up the task description
+    let descriptionParagraph = document.createElement("p");
+    descriptionParagraph.className = "task-description";
+    descriptionParagraph.textContent = t.description;
     // Create and set up the completed status span
     let statusSpan = document.createElement("span");
     statusSpan.textContent = `Completed: ${t.completed ? "Yes" : "No"}`;
     statusSpan.style.marginLeft = "10px"; // Add some space between the text and the status
-    // Add titleHeading and statusSpan to taskDiv
+    // Create radio buttons for task completion status
+    let completedYes = document.createElement("input");
+    completedYes.type = "radio";
+    completedYes.name = `completed-${taskIndex}`;
+    completedYes.value = "true";
+    completedYes.checked = t.completed;
+    completedYes.onclick = () => updateTaskCompletionStatus(taskIndex, true);
+    let completedNo = document.createElement("input");
+    completedNo.type = "radio";
+    completedNo.name = `completed-${taskIndex}`;
+    completedNo.value = "false";
+    completedNo.checked = !t.completed;
+    completedNo.onclick = () => updateTaskCompletionStatus(taskIndex, false);
+    // Add the radio buttons to the taskDiv
+    let radioDiv = document.createElement("div");
+    radioDiv.style.marginLeft = "10px";
+    radioDiv.appendChild(completedYes);
+    radioDiv.appendChild(document.createTextNode(" Yes "));
+    radioDiv.appendChild(completedNo);
+    radioDiv.appendChild(document.createTextNode(" No "));
+    // Add titleHeading, descriptionParagraph, statusSpan, and radioDiv to taskDiv
     taskDiv.appendChild(titleHeading);
+    taskDiv.appendChild(descriptionParagraph);
     taskDiv.appendChild(statusSpan);
+    taskDiv.appendChild(radioDiv);
     // Safely append taskDiv to the task display container
     let taskDisplay = document.querySelector("#task-display");
     if (taskDisplay) {
@@ -140,6 +151,34 @@ function addTaskToWebpage(t) {
     }
     else {
         console.error("Element with ID 'task-display' not found");
+    }
+}
+/**
+ * If the Completed yes/no button is check this changes the completed status
+ * in the localStorage for that item.
+ * @param index is automatically assigned when a task is added (push) to the array.
+ * @param completed is boolean value being changed.
+ */
+function updateTaskCompletionStatus(index, completed) {
+    const TaskStorageKey = "Tasks";
+    let taskData = localStorage.getItem(TaskStorageKey);
+    if (taskData) {
+        let tasks = JSON.parse(taskData);
+        tasks[index].completed = completed;
+        localStorage.setItem(TaskStorageKey, JSON.stringify(tasks));
+        refreshTaskDisplay(tasks); // Refresh the display to show the updated status
+    }
+}
+/**
+ * Refreshes the task display area to show updated task statuses.
+ */
+function refreshTaskDisplay(tasks) {
+    let taskDisplay = document.querySelector("#task-display");
+    if (taskDisplay) {
+        taskDisplay.innerHTML = ""; // Clear the display
+        tasks.forEach((task, index) => {
+            addTaskToWebpage(task, index);
+        });
     }
 }
 /**
