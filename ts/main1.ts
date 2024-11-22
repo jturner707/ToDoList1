@@ -32,24 +32,30 @@ class Task {
 
 
 window.onload = function() {
-    // Set up button click for add task form
+    // Set up button click for add and clear task form
     let addTaskBtn = document.querySelector("#add-task") as HTMLButtonElement;
     addTaskBtn.onclick = processTask;
+    let clearTasksBtn = document.querySelector("#clear-tasks") as HTMLButtonElement; 
+    clearTasksBtn.onclick = clearAllTasks;
+
 
     // Load existing tasks from localStorage
     loadTasks();
 
+    /*
     // Check if storage exists, if not, add a dummy task 
     const TaskStorageKey = "Tasks"; 
     let taskData = localStorage.getItem(TaskStorageKey); 
     if (!taskData) { 
         addDummyTask(); 
     }
+        */
 }
 
+/*
 /**
  * Adds a dummy task to storage.
- */
+ *
 function addDummyTask(): void {
     // Create a dummy Task object
     let dummyTask = new Task("Title", "Description", false);
@@ -59,6 +65,8 @@ function addDummyTask(): void {
 
     console.log("Dummy task added to storage:", dummyTask);
 }
+*/
+
 
 /**
  * Load tasks from localStorage and display them on the webpage.
@@ -80,6 +88,7 @@ function processTask() {
     if (userTask != null) {
         addTaskToWebpage(userTask);
         addTaskToStorage(userTask);
+        clearInputFields(); // Clear the input fields after task is added
     }
 }
 
@@ -148,15 +157,23 @@ function isValidTitle(data: string): boolean {
 function addTaskToWebpage(t: Task): void {
     console.log(t);
 
-    // Add the task to the web page
+    // Create a div for the task
     let taskDiv = document.createElement("div") as HTMLDivElement;
 
+    // Create and set up the title and description heading
     let titleHeading = document.createElement("h2");
     titleHeading.textContent = `${t.title} : ${t.description}`;
-    // Add h2 to task div <div><h2>Title : description</h2></div>
-    taskDiv.appendChild(titleHeading);
 
-    // Safely append taskDiv to #task-display if it exists
+    // Create and set up the completed status span
+    let statusSpan = document.createElement("span");
+    statusSpan.textContent = `Completed: ${t.completed ? "Yes" : "No"}`;
+    statusSpan.style.marginLeft = "10px"; // Add some space between the text and the status
+
+    // Add titleHeading and statusSpan to taskDiv
+    taskDiv.appendChild(titleHeading);
+    taskDiv.appendChild(statusSpan);
+
+    // Safely append taskDiv to the task display container
     let taskDisplay = document.querySelector("#task-display") as HTMLDivElement;
     if (taskDisplay) {
         taskDisplay.appendChild(taskDiv);
@@ -164,6 +181,7 @@ function addTaskToWebpage(t: Task): void {
         console.error("Element with ID 'task-display' not found");
     }
 }
+
 
 
 /**
@@ -185,6 +203,34 @@ function addTaskToStorage(t: Task): void {
     taskData = JSON.stringify(tasks);
     localStorage.setItem(TaskStorageKey, taskData);
 }
+
+function clearAllTasks(): void {
+    const TaskStorageKey = "Tasks";
+    localStorage.removeItem(TaskStorageKey);
+    let taskDisplay = document.querySelector("#task-display") as HTMLDivElement;
+    if (taskDisplay) {
+        taskDisplay.innerHTML = ""; // Clear the display
+    } else {
+        console.error("Element with ID 'task-display' not found");
+    }
+    console.log("All tasks have been cleared from storage.");
+}
+
+/**
+ * Clears the input fields after a task is added
+ */
+function clearInputFields(): void {
+    // Get all inputs
+    let titleTextBox = document.querySelector("#title") as HTMLInputElement;
+    let descriptionTextBox = document.querySelector("#description") as HTMLInputElement;
+    let completedRadioButtons = document.querySelectorAll('input[name="completed"]') as NodeListOf<HTMLInputElement>;
+
+    // Clear the values
+    titleTextBox.value = "";
+    descriptionTextBox.value = "";
+    completedRadioButtons.forEach(button => button.checked = false);
+}
+
 
 /**
  * Clears all the validation error message spans
