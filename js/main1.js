@@ -19,6 +19,12 @@ window.onload = function () {
     // Set up button click for add task form
     let addTaskBtn = document.querySelector("#add-task");
     addTaskBtn.onclick = processTask;
+    // Check if storage exists, if not, add a dummy task 
+    const TaskStorageKey = "Tasks";
+    let taskData = localStorage.getItem(TaskStorageKey);
+    if (!taskData) {
+        addDummyTask();
+    }
 };
 /**
  * Adds a dummy task to storage.
@@ -46,13 +52,6 @@ function processTask() {
  * is invalid, null will be returned and error messages
  * will be shown on the web page.
  */
-/**
- * This function will retrieve all the task
- * data from the HTML page. If all data is valid
- * a Task object will be returned. If any data
- * is invalid, null will be returned and error messages
- * will be shown on the web page.
- */
 function getTask() {
     clearAllErrorMessages();
     // Get all inputs
@@ -72,11 +71,11 @@ function getTask() {
     }
     // Validate description
     let description = descriptionTextBox.value;
-    if (description.trim() === "") {
+    if (description.length > 256) {
         isValidData = false;
         let descriptionErrorSpan = descriptionTextBox.nextElementSibling;
         if (descriptionErrorSpan) {
-            descriptionErrorSpan.textContent = "Description can only be 256 characters.";
+            descriptionErrorSpan.textContent = "Description can only be up to 256 characters.";
         }
     }
     if (isValidData) {
