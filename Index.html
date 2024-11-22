@@ -14,33 +14,33 @@
         .error-msg {
             color: red;
         }
+        .task-description { 
+            display: inline-block;
+            width: 66ch; 
+            /* The max width in characters */ 
+            word-wrap: break-word; 
+        }
     </style>
 </head>
 <body>
-    <h1>ToDo List</h1>
+    <h1 style="text-align: center;">ToDo List</h1>
 
-    <h2>Add a Task</h2>   
+    <h2>Add a Task:</h2>   
     <form>
-        <label for="title">Title</label>
+        <label for="title" style="font-weight: bold;">Title</label>
         <input id="title" type="text">
         <span class="error-msg"></span>
         <br>
 
-        <label for="description">Description</label>
-        <input id="description" type="text">
-        <span class="error-msg"></span>
-        <br>
-
-        <label for="completed">Completed</label>
-        <input id="completed" type="radio" name="completed" value="true"> Yes
-        <input id="completed" type="radio" name="completed" value="false"> No
+        <label for="description" style="font-weight: bold;">Description</label>
+        <input id="description" type="text" size="72">
         <span class="error-msg"></span>
         <br>
 
         <button type="button" id="add-task">Add Task</button>
         <button type="button" id="clear-tasks">Clear All Tasks</button>
     </form>
-
+    
     <!-- Add the task display container -->
     <div id="task-display"></div>
 </body>
