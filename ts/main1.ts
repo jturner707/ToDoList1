@@ -36,6 +36,9 @@ window.onload = function() {
     let addTaskBtn = document.querySelector("#add-task") as HTMLButtonElement;
     addTaskBtn.onclick = processTask;
 
+    // Load existing tasks from localStorage
+    loadTasks();
+
     // Check if storage exists, if not, add a dummy task 
     const TaskStorageKey = "Tasks"; 
     let taskData = localStorage.getItem(TaskStorageKey); 
@@ -57,8 +60,19 @@ function addDummyTask(): void {
     console.log("Dummy task added to storage:", dummyTask);
 }
 
-// Call this function to add a dummy task when needed
-// addDummyTask();
+/**
+ * Load tasks from localStorage and display them on the webpage.
+ */
+function loadTasks(): void {
+    const TaskStorageKey = "Tasks";
+    let taskData = localStorage.getItem(TaskStorageKey);
+    if (taskData) {
+        let tasks: Task[] = JSON.parse(taskData);
+        for (let task of tasks) {
+            addTaskToWebpage(task);
+        }
+    }
+}
 
 
 function processTask() {
