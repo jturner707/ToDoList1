@@ -16,4 +16,4 @@
 4. Discuss what went well in this project and what did not go well for you
 
 ## Video Link:
-https://cptc.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=f9783d28-fb8a-4c65-8b60-b2380045d192
+https://cptc.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=52a057ed-254a-4ec8-95a0-b2380149735a
