@@ -144,7 +144,7 @@ function addTaskToWebpage(t: Task, taskIndex: number): void {
     // Create and set up the task description
     let descriptionParagraph = document.createElement("p");
     descriptionParagraph.className = "task-description";
-    descriptionParagraph.textContent = t.description;
+    descriptionParagraph.innerHTML = t.description;
 
     // Create and set up the completed status span
     let statusSpan = document.createElement("span");
